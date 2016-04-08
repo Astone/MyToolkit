@@ -7,6 +7,7 @@
 //-----------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -20,7 +21,7 @@ namespace MyToolkit.Collections
     /// <typeparam name="T"></typeparam>
     public class MtObservableCollection<T> : ObservableCollection<T>
     {
-        private List<T> _oldCollection = null;
+        private List<T> _oldCollection;
         private event EventHandler<MtNotifyCollectionChangedEventArgs<T>> _extendedCollectionChanged;
 
         /// <summary>Initializes a new instance of the <see cref="MtObservableCollection{T}"/> class.</summary>
@@ -54,7 +55,11 @@ namespace MyToolkit.Collections
                 Items.Add(item);
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+#if LEGACY
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+#else
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, collection.ToList()));
+#endif
         }
 
         /// <summary>Removes multiple items from the collection. </summary>
@@ -69,7 +74,11 @@ namespace MyToolkit.Collections
                 Items.Remove(item);
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+#if LEGACY
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+#else
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, collection.ToList()));
+#endif
         }
 
         /// <summary>Resets the whole collection with a given list. </summary>
